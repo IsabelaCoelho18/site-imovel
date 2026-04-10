@@ -3,72 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Infinity Brooklin | Coelho Imóveis</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
+
 body {
     margin: 0;
-    font-family: Arial;
-    background: #0f172a;
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0a;
     color: white;
 }
 
-header {
+/* HERO */
+.hero {
     height: 100vh;
-    background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c') center/cover;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9)),
+    url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c');
+    background-size: cover;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     text-align: center;
 }
 
-h1 {
-    font-size: 3em;
+.hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5em;
+    color: #d4af37;
+}
+
+.hero p {
+    margin: 20px 0;
+    font-size: 1.2em;
 }
 
 .btn {
-    background: #22c55e;
-    padding: 15px 25px;
-    color: white;
+    background: #d4af37;
+    color: black;
+    padding: 15px 30px;
     text-decoration: none;
-    border-radius: 8px;
+    font-weight: bold;
 }
 
+/* SECTIONS */
 section {
-    padding: 40px;
+    padding: 80px 20px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+h2 {
+    font-family: 'Playfair Display', serif;
+    color: #d4af37;
+    margin-bottom: 20px;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #111;
+    padding: 20px;
+    border: 1px solid #333;
+}
+
+/* GALERIA */
+.galeria img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+/* WHATS */
+.whatsapp {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    padding: 15px;
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
 }
 
 footer {
     text-align: center;
-    padding: 20px;
-    background: #020617;
+    padding: 30px;
+    background: black;
 }
+
 </style>
 </head>
 
 <body>
 
-<header>
+<!-- HERO -->
+<div class="hero">
     <div>
         <h1>Infinity Brooklin</h1>
-        <p>Alto padrão em São Paulo</p>
-        <a class="btn" href="https://wa.me/5511930178903">Falar com Coelho</a>
+        <p>Exclusividade e alto padrão no Brooklin</p>
+        <a class="btn" href="https://wa.me/5511930178903">Fale com Coelho</a>
     </div>
-</header>
+</div>
 
+<!-- LOCALIZAÇÃO -->
 <section>
-    <h2>Localização</h2>
-    <p>Próximo à Faria Lima, Berrini e Vila Olímpia.</p>
+    <h2>Localização Privilegiada</h2>
+    <p>
+        A poucos minutos da Faria Lima, Berrini e Vila Olímpia.
+        Um dos endereços mais valorizados de São Paulo.
+    </p>
 </section>
 
+<!-- PRODUTO -->
 <section>
-    <h2>Sobre o empreendimento</h2>
-    <p>Apartamentos de alto padrão com lazer completo e excelente localização.</p>
+    <h2>Tipologias</h2>
+    <div class="grid">
+        <div class="card"><h3>187m²</h3><p>3 suítes | Alto padrão</p></div>
+        <div class="card"><h3>160m²</h3><p>3 suítes</p></div>
+        <div class="card"><h3>143m²</h3><p>2 ou 3 suítes</p></div>
+        <div class="card"><h3>88m²</h3><p>Compacto premium</p></div>
+    </div>
+</section>
+
+<!-- DIFERENCIAIS -->
+<section>
+    <h2>Diferenciais</h2>
+    <ul>
+        <li>Piscina coberta e descoberta</li>
+        <li>Quadra de tênis</li>
+        <li>Coworking</li>
+        <li>Espaço gourmet</li>
+        <li>Pet place</li>
+    </ul>
+</section>
+
+<!-- GALERIA -->
+<section class="galeria">
+    <h2>Imagens do Projeto</h2>
+    <div class="grid">
+        <img src="https://images.unsplash.com/photo-1600585152915-d208bec867a1">
+        <img src="https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde">
+        <img src="https://images.unsplash.com/photo-1600607687644-c7f34fcbf90f">
+    </div>
+</section>
+
+<!-- CTA -->
+<section>
+    <h2>Atendimento Exclusivo</h2>
+    <p>Receba valores, plantas e condições especiais.</p>
+    <a class="btn" href="https://wa.me/5511930178903">Chamar no WhatsApp</a>
 </section>
 
 <footer>
-    <p>Coelho Imóveis | Atendimento exclusivo</p>
+    <p>Coelho Imóveis | Especialista em alto padrão</p>
 </footer>
+
+<a class="whatsapp" href="https://wa.me/5511930178903">💬</a>
 
 </body>
 </html>
