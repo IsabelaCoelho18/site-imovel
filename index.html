@@ -319,7 +319,7 @@ footer{background:var(--dark);border-top:1px solid rgba(201,168,76,.15);padding:
         <div class="fg"><label>Interesse</label><select id="fi"><option value="">Selecione a tipologia</option><option>88 m² — Torre West (Smart)</option><option>143 m² — Torre West (Premium)</option><option>160 m² — Torre West (Signature)</option><option>187 m² — Torre East (Panoramic)</option><option>Duplex — A partir de 256 m²</option></select></div>
         <div class="fg"><label>Finalidade</label><select id="ff"><option>Morar</option><option>Investimento</option><option>Ambos</option></select></div>
         <div class="fg"><label>Mensagem (opcional)</label><textarea id="fm" placeholder="Deixe uma mensagem..."></textarea></div>
-        <button type="button" class="btn" onclick="enviar()">Solicitar Apresentação</button>
+        <button type="button" class="btn" id="btn-enviar" onclick="enviar()" style="width:100%;justify-content:center;">Solicitar Apresentação</button>
         <p id="fb" style="display:none;font-size:11px;color:var(--gold);margin-top:8px;letter-spacing:1px;">✓ Enviado! Entro em contato em breve.</p>
       </div>
     </div>
@@ -340,46 +340,222 @@ footer{background:var(--dark);border-top:1px solid rgba(201,168,76,.15);padding:
 </a>
 
 <script>
+// NAV SCROLL
 const nav=document.getElementById('nav');
 window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>80));
-document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}}));
-document.querySelectorAll('.tc').forEach(c=>{c.addEventListener('touchstart',()=>c.style.borderColor='rgba(201,168,76,.5)',{passive:true});c.addEventListener('touchend',()=>setTimeout(()=>c.style.borderColor='',300),{passive:true});});
 
-// LEAD SYSTEM
-const LK='ib_leads',VK='ib_visits',AP='coelho2026';
-const gl=()=>{try{return JSON.parse(localStorage.getItem(LK)||'[]');}catch(e){return[];}};
-const gv=()=>{try{return JSON.parse(localStorage.getItem(VK)||'[]');}catch(e){return[];}};
-(()=>{const v=gv();v.unshift({d:new Date().toLocaleString('pt-BR'),dev:/Mobi|Android/i.test(navigator.userAgent)?'Mobile':'Desktop',o:document.referrer||'Direto'});localStorage.setItem(VK,JSON.stringify(v.slice(0,200)));})();
+// SMOOTH SCROLL
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+  const t=document.querySelector(a.getAttribute('href'));
+  if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+}));
 
-function enviar(){
-  const n=document.getElementById('fn').value.trim(),t=document.getElementById('ft').value.trim(),
-        e=document.getElementById('fe').value.trim(),i=document.getElementById('fi').value,
-        f=document.getElementById('ff').value,m=document.getElementById('fm').value.trim();
-  if(!n||!t){alert('Preencha nome e telefone.');return;}
-  const leads=gl();
-  leads.unshift({id:Date.now(),nome:n,tel:t,email:e,interesse:i,finalidade:f,msg:m,data:new Date().toLocaleString('pt-BR'),dev:/Mobi|Android/i.test(navigator.userAgent)?'📱 Mobile':'💻 Desktop',origem:document.referrer||'Direto'});
-  localStorage.setItem(LK,JSON.stringify(leads));
-  document.getElementById('fb').style.display='block';
-  ['fn','ft','fe','fm'].forEach(id=>document.getElementById(id).value='');
-  setTimeout(()=>window.open('https://wa.me/5511930178903?text='+encodeURIComponent('Olá Coelho! Me chamo '+n+', tel '+t+'. Interesse: '+(i||'a definir')+' | '+f+(m?' | '+m:'')),'_blank'),600);
+// TOUCH CARDS
+document.querySelectorAll('.tc').forEach(c=>{
+  c.addEventListener('touchstart',()=>c.style.borderColor='rgba(201,168,76,.5)',{passive:true});
+  c.addEventListener('touchend',()=>setTimeout(()=>c.style.borderColor='',300),{passive:true});
+});
+
+// ══════════════════════════════════════
+// SISTEMA DE LEADS
+// ══════════════════════════════════════
+const LK = 'ib_leads_v3';
+const VK = 'ib_visits_v3';
+const AP = 'coelho2026';
+
+function getLeads() {
+  try { return JSON.parse(localStorage.getItem(LK) || '[]'); } catch(e) { return []; }
+}
+function getVisits() {
+  try { return JSON.parse(localStorage.getItem(VK) || '[]'); } catch(e) { return []; }
 }
 
-// ADM — clicar 5x no logo
-let tc=0,tt;
-['logo1','logo2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.addEventListener('click',()=>{tc++;clearTimeout(tt);tt=setTimeout(()=>tc=0,2000);if(tc>=5){tc=0;const s=prompt('🔐 Painel ADM — Infinity Brooklin\nSenha:');if(s===AP)adm();else if(s!==null)alert('Senha incorreta.');}});});
+// Registra visita automaticamente
+(function(){
+  try {
+    const v = getVisits();
+    v.unshift({
+      d: new Date().toLocaleString('pt-BR'),
+      dev: /Mobi|Android/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop',
+      o: document.referrer || 'Direto'
+    });
+    localStorage.setItem(VK, JSON.stringify(v.slice(0, 300)));
+  } catch(e) { console.log('Visit tracking error:', e); }
+})();
 
-function adm(){
-  const leads=gl(),visits=gv(),conv=leads.length&&visits.length?Math.round(leads.length/visits.length*100):0;
-  const html=leads.length===0?'<p style="color:#9A9A8E;text-align:center;padding:40px;">Nenhum lead ainda.</p>':leads.map((l,i)=>`<div style="background:#162338;border:1px solid rgba(201,168,76,.15);padding:18px;margin-bottom:10px;border-radius:2px;"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;"><div><div style="font-size:15px;color:#F8F5EF;font-weight:500;">${l.nome||'—'}</div><div style="font-size:12px;color:#C9A84C;margin-top:2px;">📱 ${l.tel||'—'} · ✉️ ${l.email||'—'}</div></div><div style="text-align:right;"><div style="background:rgba(201,168,76,.15);color:#C9A84C;font-size:9px;padding:2px 8px;display:inline-block;">LEAD #${leads.length-i}</div><div style="font-size:10px;color:#9A9A8E;margin-top:3px;">${l.data||'—'}</div></div></div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"><span style="background:#0E1B2A;color:#E8D5A3;font-size:11px;padding:3px 8px;">🏠 ${l.interesse||'—'}</span><span style="background:#0E1B2A;color:#E8D5A3;font-size:11px;padding:3px 8px;">🎯 ${l.finalidade||'—'}</span><span style="background:#0E1B2A;color:#E8D5A3;font-size:11px;padding:3px 8px;">${l.dev||'—'}</span></div>${l.msg?`<div style="font-size:12px;color:#9A9A8E;font-style:italic;margin-bottom:8px;">"${l.msg}"</div>`:''}<a href="https://wa.me/55${(l.tel||'').replace(/\D/g,'')}" target="_blank" style="background:#25D366;color:#fff;font-size:10px;letter-spacing:2px;padding:6px 14px;text-decoration:none;display:inline-block;">💬 CHAMAR NO WA</a></div>`).join('');
-  const p=document.createElement('div');
-  p.id='adm';p.style.cssText='position:fixed;inset:0;background:rgba(8,14,22,.99);z-index:99999;overflow-y:auto;font-family:Montserrat,sans-serif;';
-  p.innerHTML=`<div style="background:#0E1B2A;border-bottom:1px solid rgba(201,168,76,.3);padding:16px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:2;"><div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#C9A84C;letter-spacing:4px;">PAINEL ADM</div><div style="font-size:10px;color:#9A9A8E;letter-spacing:2px;">Infinity Brooklin · Coelho</div></div><div style="display:flex;gap:8px;"><button onclick="expLeads()" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);color:#C9A84C;font-size:10px;letter-spacing:2px;padding:7px 14px;cursor:pointer;">⬇ EXPORTAR</button><button onclick="document.getElementById('adm').remove()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#9A9A8E;font-size:10px;letter-spacing:2px;padding:7px 14px;cursor:pointer;">✕ FECHAR</button></div></div><div style="padding:20px;max-width:840px;margin:0 auto;"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;"><div style="background:#162338;border:1px solid rgba(201,168,76,.2);padding:20px;text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:48px;color:#C9A84C;line-height:1;">${leads.length}</div><div style="font-size:9px;letter-spacing:3px;color:#9A9A8E;margin-top:4px;">LEADS</div></div><div style="background:#162338;border:1px solid rgba(201,168,76,.2);padding:20px;text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:48px;color:#C9A84C;line-height:1;">${visits.length}</div><div style="font-size:9px;letter-spacing:3px;color:#9A9A8E;margin-top:4px;">VISITAS</div></div><div style="background:#162338;border:1px solid rgba(201,168,76,.2);padding:20px;text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:48px;color:#C9A84C;line-height:1;">${conv}%</div><div style="font-size:9px;letter-spacing:3px;color:#9A9A8E;margin-top:4px;">CONVERSÃO</div></div></div><div style="font-size:9px;letter-spacing:4px;color:#C9A84C;border-bottom:1px solid rgba(201,168,76,.15);padding-bottom:8px;margin-bottom:14px;text-transform:uppercase;">Leads Recebidos</div>${html}</div>`;
-  document.body.appendChild(p);
+// BOTÃO SOLICITAR APRESENTAÇÃO
+function enviar() {
+  const n = document.getElementById('fn').value.trim();
+  const t = document.getElementById('ft').value.trim();
+  const e = document.getElementById('fe').value.trim();
+  const i = document.getElementById('fi').value;
+  const f = document.getElementById('ff').value;
+  const m = document.getElementById('fm').value.trim();
+
+  if (!n || !t) {
+    alert('⚠️ Por favor, preencha seu nome e telefone para continuar.');
+    return;
+  }
+
+  // Salva no localStorage
+  try {
+    const leads = getLeads();
+    const lead = {
+      id: Date.now(),
+      nome: n, tel: t, email: e,
+      interesse: i, finalidade: f, msg: m,
+      data: new Date().toLocaleString('pt-BR'),
+      dev: /Mobi|Android/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop',
+      origem: document.referrer || 'Direto'
+    };
+    leads.unshift(lead);
+    localStorage.setItem(LK, JSON.stringify(leads));
+    console.log('Lead salvo:', lead);
+  } catch(err) {
+    console.log('Erro ao salvar lead:', err);
+  }
+
+  // Feedback visual
+  const btn = document.querySelector('#contato .btn');
+  const fb = document.getElementById('fb');
+  if (btn) { btn.textContent = '✓ Enviado!'; btn.style.background = '#2D7A3A'; }
+  if (fb) fb.style.display = 'block';
+
+  // Limpa campos
+  ['fn','ft','fe','fm'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Abre WhatsApp
+  const msg = 'Olá Coelho! Me chamo ' + n + ', tel ' + t +
+    '. Interesse: ' + (i || 'a definir') + ' | ' + f +
+    (m ? ' | Mensagem: ' + m : '');
+  setTimeout(() => {
+    window.open('https://wa.me/5511930178903?text=' + encodeURIComponent(msg), '_blank');
+    if (btn) { btn.textContent = 'Solicitar Apresentação'; btn.style.background = ''; }
+  }, 800);
 }
-function expLeads(){
-  const l=gl();if(!l.length){alert('Nenhum lead.');return;}
-  const csv='Nome,Telefone,Email,Interesse,Finalidade,Mensagem,Data,Dispositivo\n'+l.map(x=>[x.nome,x.tel,x.email,x.interesse,x.finalidade,(x.msg||'').replace(/,/g,' '),x.data,x.dev].join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='leads_infinity_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';a.click();
+
+// ══════════════════════════════════════
+// BOTÃO ADM FIXO (canto inferior esquerdo)
+// ══════════════════════════════════════
+(function criarBotaoAdm() {
+  const btn = document.createElement('button');
+  btn.id = 'adm-btn';
+  btn.innerHTML = '🔐';
+  btn.title = 'Painel ADM';
+  btn.style.cssText = [
+    'position:fixed', 'bottom:28px', 'left:20px', 'z-index:200',
+    'width:38px', 'height:38px', 'border-radius:50%',
+    'background:rgba(14,27,42,0.85)', 'border:1px solid rgba(201,168,76,0.25)',
+    'color:var(--gold)', 'font-size:16px', 'cursor:pointer',
+    'transition:all .3s', 'display:flex', 'align-items:center',
+    'justify-content:center', 'opacity:0.4'
+  ].join(';');
+  btn.addEventListener('mouseenter', () => { btn.style.opacity='1'; btn.style.borderColor='rgba(201,168,76,0.7)'; });
+  btn.addEventListener('mouseleave', () => { btn.style.opacity='0.4'; btn.style.borderColor='rgba(201,168,76,0.25)'; });
+  btn.addEventListener('click', pedirSenha);
+  document.body.appendChild(btn);
+})();
+
+function pedirSenha() {
+  const s = prompt('🔐 Painel ADM — Infinity Brooklin\nSenha:');
+  if (s === AP) abrirAdm();
+  else if (s !== null) alert('Senha incorreta.');
+}
+
+function abrirAdm() {
+  const leads = getLeads();
+  const visits = getVisits();
+  const conv = (leads.length && visits.length)
+    ? Math.round(leads.length / visits.length * 100) : 0;
+
+  const leadsHTML = leads.length === 0
+    ? '<p style="color:#9A9A8E;text-align:center;padding:48px 0;font-size:13px;">Nenhum lead ainda.<br>Compartilhe o site para começar a capturar!</p>'
+    : leads.map((l, idx) => `
+      <div style="background:#162338;border:1px solid rgba(201,168,76,.15);padding:18px;margin-bottom:10px;border-radius:2px;">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <div>
+            <div style="font-size:16px;color:#F8F5EF;font-weight:500;">${l.nome || '—'}</div>
+            <div style="font-size:12px;color:#C9A84C;margin-top:3px;">📱 ${l.tel || '—'} &nbsp;·&nbsp; ✉️ ${l.email || '—'}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="background:rgba(201,168,76,.15);color:#C9A84C;font-size:9px;padding:3px 8px;letter-spacing:2px;display:inline-block;">LEAD #${leads.length - idx}</div>
+            <div style="font-size:10px;color:#9A9A8E;margin-top:3px;">${l.data || '—'}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+          <span style="background:#0E1B2A;color:#E8D5A3;font-size:11px;padding:3px 10px;">🏠 ${l.interesse || '—'}</span>
+          <span style="background:#0E1B2A;color:#E8D5A3;font-size:11px;padding:3px 10px;">🎯 ${l.finalidade || '—'}</span>
+          <span style="background:#0E1B2A;color:#E8D5A3;font-size:11px;padding:3px 10px;">${l.dev || '—'}</span>
+        </div>
+        ${l.msg ? `<div style="font-size:12px;color:#9A9A8E;font-style:italic;margin-bottom:10px;">"${l.msg}"</div>` : ''}
+        <a href="https://wa.me/55${(l.tel || '').replace(/\D/g,'')}" target="_blank"
+           style="background:#25D366;color:#fff;font-size:10px;letter-spacing:2px;padding:7px 16px;text-decoration:none;display:inline-block;">
+          💬 CHAMAR NO WHATSAPP
+        </a>
+      </div>`).join('');
+
+  // Remove painel anterior se existir
+  const old = document.getElementById('adm-panel');
+  if (old) old.remove();
+
+  const panel = document.createElement('div');
+  panel.id = 'adm-panel';
+  panel.style.cssText = 'position:fixed;inset:0;background:rgba(8,14,22,.99);z-index:99999;overflow-y:auto;font-family:Montserrat,sans-serif;';
+  panel.innerHTML = `
+    <div style="background:#0E1B2A;border-bottom:1px solid rgba(201,168,76,.3);padding:18px 24px;
+         display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+         position:sticky;top:0;z-index:2;">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#C9A84C;letter-spacing:4px;">PAINEL ADM</div>
+        <div style="font-size:10px;color:#9A9A8E;letter-spacing:2px;margin-top:2px;">Infinity Brooklin · Coelho</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="exportarLeads()" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);
+                color:#C9A84C;font-size:10px;letter-spacing:2px;padding:8px 14px;cursor:pointer;">⬇ EXPORTAR CSV</button>
+        <button onclick="document.getElementById('adm-panel').remove()"
+                style="background:transparent;border:1px solid rgba(255,255,255,.2);
+                color:#9A9A8E;font-size:10px;letter-spacing:2px;padding:8px 14px;cursor:pointer;">✕ FECHAR</button>
+      </div>
+    </div>
+    <div style="padding:24px;max-width:860px;margin:0 auto;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;">
+        <div style="background:#162338;border:1px solid rgba(201,168,76,.2);padding:22px;text-align:center;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:52px;color:#C9A84C;line-height:1;">${leads.length}</div>
+          <div style="font-size:9px;letter-spacing:3px;color:#9A9A8E;margin-top:4px;text-transform:uppercase;">Leads</div>
+        </div>
+        <div style="background:#162338;border:1px solid rgba(201,168,76,.2);padding:22px;text-align:center;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:52px;color:#C9A84C;line-height:1;">${visits.length}</div>
+          <div style="font-size:9px;letter-spacing:3px;color:#9A9A8E;margin-top:4px;text-transform:uppercase;">Visitas</div>
+        </div>
+        <div style="background:#162338;border:1px solid rgba(201,168,76,.2);padding:22px;text-align:center;">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:52px;color:#C9A84C;line-height:1;">${conv}%</div>
+          <div style="font-size:9px;letter-spacing:3px;color:#9A9A8E;margin-top:4px;text-transform:uppercase;">Conversão</div>
+        </div>
+      </div>
+      <div style="font-size:9px;letter-spacing:4px;color:#C9A84C;text-transform:uppercase;
+           border-bottom:1px solid rgba(201,168,76,.15);padding-bottom:10px;margin-bottom:16px;">
+        Leads Recebidos
+      </div>
+      ${leadsHTML}
+    </div>`;
+  document.body.appendChild(panel);
+}
+
+function exportarLeads() {
+  const leads = getLeads();
+  if (!leads.length) { alert('Nenhum lead para exportar ainda.'); return; }
+  const csv = 'Nome,Telefone,Email,Interesse,Finalidade,Mensagem,Data,Dispositivo\n'
+    + leads.map(l => [
+        l.nome, l.tel, l.email, l.interesse, l.finalidade,
+        (l.msg || '').replace(/,/g, ' '), l.data, l.dev
+      ].join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'}));
+  a.download = 'leads_infinity_' + new Date().toLocaleDateString('pt-BR').replace(/\//g, '-') + '.csv';
+  a.click();
 }
 </script>
 </body>
